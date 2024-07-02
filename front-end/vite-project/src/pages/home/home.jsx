@@ -10,6 +10,7 @@ import AddEditNotes from "./AddEditNotes";
 import axiosInstance from "../../utils/axiosInstance";
 import AddNotesImg from "../../assets/images/add-notes.svg";
 import NoDataImg from "../../assets/images/no-data.svg";
+
 const Home = () => {
   const [allNotes, setAllNotes] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
@@ -25,9 +26,11 @@ const Home = () => {
     message: "",
     type: "add",
   });
+
   const handleEdit = (noteDetails) => {
     setOpenAddEditModal({ isShown: true, data: noteDetails, type: "edit" });
   };
+
   const showToastMessage = (message, type) => {
     setShowToastMsg({
       isShown: true,
@@ -35,21 +38,27 @@ const Home = () => {
       type,
     });
   };
+
   const handleCloseToast = () => {
     setShowToastMsg({
       isShown: false,
       message: "",
     });
   };
+
   // API Calls using Axios instance
   // Get all notes
   const getAllNotes = async () => {
     try {
-     // code here
+      const response = await axiosInstance.get("/get-all-notes");
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+      }
     } catch (error) {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
+
   // API Calls using Axios instance
   // Delete Note
   const deleteNote = async (data) => {
@@ -64,6 +73,7 @@ const Home = () => {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
+
   // API Calls using Axios instance
   // Get User Info
   const getUserInfo = async () => {
@@ -79,43 +89,45 @@ const Home = () => {
       }
     }
   };
+
   // API Calls using Axios instance
   // Search for a Note
   const onSearchNote = async (query) => {
     try {
-    // code here
-    } catch (error) {
-      console.log("An unexpected error occurred. Please try again.");
-    }
-  };
-  // API Calls using Axios instance
-  // update isPinned
-  const updateIsPinned = async (noteData) => {
-    const noteId = noteData._id;
-    try {
-      const response = await axiosInstance.put(
-        "/update-note-pinned/" + noteId,
-        {
-          isPinned: !noteData.isPinned,
-        }
-      );
-      if (response.data && response.data.note) {
-        showToastMessage("Note Updated Successfully", "update");
-        getAllNotes();
+      const response = await axiosInstance.get(`/search-notes?q=${query}`);
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes);
+        setIsSearch(true);
       }
     } catch (error) {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
+
+  // API Calls using Axios instance
+  // update isPinned
+  const updateIsPinned = async (noteData) => {
+    const noteId = noteData._id;
+    try {
+      const response =await axiosInstance.get("/get-all-notes");
+        {
+            setAllNotes (response. data.notes);
+        }
+    } catch (error) {
+        console. log("An unexpected error occurred. Please try again.");
+      }
+  };
+
   const handleClearSearch = () => {
     setIsSearch(false);
     getAllNotes();
   };
+
   useEffect(() => {
     getAllNotes();
     getUserInfo();
-    return () => {};
   }, []);
+
   return (
     <>
       <Navbar
@@ -167,7 +179,9 @@ const Home = () => {
       </button>
       <Modal
         isOpen={openAddEditModal.isShown}
-        onRequestClose={() => {}}
+        onRequestClose={() => {
+          setOpenAddEditModal({ isShown: false, type: "add", data: null });
+        }}
         style={{
           overlay: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -195,4 +209,5 @@ const Home = () => {
     </>
   );
 };
+
 export default Home;
