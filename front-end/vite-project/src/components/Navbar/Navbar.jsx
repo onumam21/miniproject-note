@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import SearchBar from "../SearchBar/SearchBar";
-import ProfileInfo from "../cards/ProfileInfo";
+import ProfileInfo from "../Cards/ProfileInfo";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ userInfo, onSearchNote, handleClearSearch }) => {
@@ -31,7 +31,7 @@ const Navbar = ({ userInfo, onSearchNote, handleClearSearch }) => {
       <h2 className="text-xl font-medium text-black py-2">Notes</h2>
 
       {isToken && (
-        <div>
+        <>
           <SearchBar
             value={searchQuery}
             onChange={({ target }) => {
@@ -42,7 +42,7 @@ const Navbar = ({ userInfo, onSearchNote, handleClearSearch }) => {
           />
 
           <ProfileInfo userInfo={userInfo} onLogout={onLogout} />
-        </div>
+        </>
       )}
     </div>
   );

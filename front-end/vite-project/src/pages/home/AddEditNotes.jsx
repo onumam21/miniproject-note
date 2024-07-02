@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { MdClose } from "react-icons/md";
+
 import TagInput from "../../components/Input/TagInput";
+
 import axiosInstance from "../../utils/axiosInstance";
+
 const AddEditNotes = ({
   noteData,
   type,
@@ -12,7 +15,9 @@ const AddEditNotes = ({
   const [title, setTitle] = useState(noteData?.title || "");
   const [content, setContent] = useState(noteData?.content || "");
   const [tags, setTags] = useState(noteData?.tags || []);
+
   const [error, setError] = useState(null);
+
   const addNewNote = async () => {
     try {
       const response = await axiosInstance.post("/add-note", {
@@ -20,6 +25,7 @@ const AddEditNotes = ({
         content,
         tags,
       });
+
       if (response.data && response.data.note) {
         showToastMessage("Note Added Successfully");
         getAllNotes();
@@ -37,14 +43,17 @@ const AddEditNotes = ({
       }
     }
   };
+
   const editNote = async () => {
     const noteId = noteData._id;
+
     try {
       const response = await axiosInstance.put("/edit-note/" + noteId, {
         title,
         content,
         tags,
       });
+
       if (response.data && response.data.note) {
         showToastMessage("Note Updated Successfully", "update");
         getAllNotes();
@@ -62,22 +71,27 @@ const AddEditNotes = ({
       }
     }
   };
+
   const handleAddNote = () => {
     if (!title) {
       setError("Please enter the title");
       return;
     }
+
     if (!content) {
       setError("Please enter the content");
       return;
     }
+
     setError("");
+
     if (type === "edit") {
       editNote();
     } else {
       addNewNote();
     }
   };
+
   return (
     <div className="relative">
       <button
@@ -86,6 +100,7 @@ const AddEditNotes = ({
       >
         <MdClose className="text-xl text-slate-400" />
       </button>
+
       <div className="flex flex-col gap-2">
         <label className="input-label">TITLE</label>
         <input
@@ -96,6 +111,7 @@ const AddEditNotes = ({
           onChange={({ target }) => setTitle(target.value)}
         />
       </div>
+
       <div className="flex flex-col gap-2 mt-4">
         <label className="input-label">CONTENT</label>
         <textarea
@@ -107,11 +123,14 @@ const AddEditNotes = ({
           onChange={({ target }) => setContent(target.value)}
         />
       </div>
+
       <div className="mt-3">
         <label className="input-label">TAGS</label>
         <TagInput tags={tags} setTags={setTags} />
       </div>
+
       {error && <p className="text-red-500 text-xs pt-4">{error}</p>}
+
       <button
         className="btn-primary font-medium mt-5 p-3"
         onClick={handleAddNote}
@@ -121,4 +140,5 @@ const AddEditNotes = ({
     </div>
   );
 };
+
 export default AddEditNotes;

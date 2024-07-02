@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { MdAdd } from "react-icons/md";
+
 import Navbar from "../../components/Navbar/Navbar";
 import NoteCard from "../../components/Cards/NoteCard";
 import Toast from "../../components/ToastMessage/Toast";
 import EmptyCard from "../../components/EmptyCard/EmptyCard";
+
 import AddEditNotes from "./AddEditNotes";
+
 import axiosInstance from "../../utils/axiosInstance";
+
 import AddNotesImg from "../../assets/images/add-notes.svg";
 import NoDataImg from "../../assets/images/no-data.svg";
 
@@ -15,12 +19,15 @@ const Home = () => {
   const [allNotes, setAllNotes] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+
   const navigate = useNavigate();
+
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
     type: "add",
     data: null,
   });
+
   const [showToastMsg, setShowToastMsg] = useState({
     isShown: false,
     message: "",
@@ -51,6 +58,7 @@ const Home = () => {
   const getAllNotes = async () => {
     try {
       const response = await axiosInstance.get("/get-all-notes");
+
       if (response.data && response.data.notes) {
         setAllNotes(response.data.notes);
       }
@@ -58,13 +66,13 @@ const Home = () => {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
-
   // API Calls using Axios instance
   // Delete Note
   const deleteNote = async (data) => {
     const noteId = data._id;
     try {
       const response = await axiosInstance.delete("/delete-note/" + noteId);
+
       if (response.data && !response.data.error) {
         showToastMessage("Note Deleted Successfully", "delete");
         getAllNotes();
@@ -73,7 +81,6 @@ const Home = () => {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
-
   // API Calls using Axios instance
   // Get User Info
   const getUserInfo = async () => {
@@ -89,33 +96,42 @@ const Home = () => {
       }
     }
   };
-
   // API Calls using Axios instance
   // Search for a Note
   const onSearchNote = async (query) => {
     try {
-      const response = await axiosInstance.get(`/search-notes?q=${query}`);
+      const response = await axiosInstance.get("/search-notes", {
+        params: { query },
+      });
+
       if (response.data && response.data.notes) {
-        setAllNotes(response.data.notes);
         setIsSearch(true);
+        setAllNotes(response.data.notes);
       }
     } catch (error) {
       console.log("An unexpected error occurred. Please try again.");
     }
   };
-
   // API Calls using Axios instance
   // update isPinned
   const updateIsPinned = async (noteData) => {
     const noteId = noteData._id;
+
     try {
-      const response =await axiosInstance.get("/get-all-notes");
+      const response = await axiosInstance.put(
+        "/update-note-pinned/" + noteId,
         {
-            setAllNotes (response. data.notes);
+          isPinned: !noteData.isPinned,
         }
-    } catch (error) {
-        console. log("An unexpected error occurred. Please try again.");
+      );
+
+      if (response.data && response.data.note) {
+        showToastMessage("Note Updated Successfully", "update");
+        getAllNotes();
       }
+    } catch (error) {
+      console.log("An unexpected error occurred. Please try again.");
+    }
   };
 
   const handleClearSearch = () => {
@@ -126,6 +142,7 @@ const Home = () => {
   useEffect(() => {
     getAllNotes();
     getUserInfo();
+    return () => {};
   }, []);
 
   return (
@@ -135,10 +152,12 @@ const Home = () => {
         onSearchNote={onSearchNote}
         handleClearSearch={handleClearSearch}
       />
+
       <div className="container mx-auto">
         {isSearch && (
           <h3 className="text-lg font-medium mt-5">Search Results</h3>
         )}
+
         {allNotes.length > 0 ? (
           <div className="grid grid-cols-3 gap-4 mt-8">
             {allNotes.map((item) => {
@@ -169,6 +188,7 @@ const Home = () => {
           />
         )}
       </div>
+
       <button
         className="w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 absolute right-10 bottom-10"
         onClick={() => {
@@ -177,11 +197,10 @@ const Home = () => {
       >
         <MdAdd className="text-[32px] text-white" />
       </button>
+
       <Modal
         isOpen={openAddEditModal.isShown}
-        onRequestClose={() => {
-          setOpenAddEditModal({ isShown: false, type: "add", data: null });
-        }}
+        onRequestClose={() => {}}
         style={{
           overlay: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -200,6 +219,7 @@ const Home = () => {
           getAllNotes={getAllNotes}
         />
       </Modal>
+
       <Toast
         isShown={showToastMsg.isShown}
         message={showToastMsg.message}
